@@ -11,12 +11,5 @@ link_directories(LeapSDK/lib/x64/)
 include_directories("C:\\Users\\anfer\\Anaconda3\\include")
 link_directories("C:\\Users\\anfer\\Anaconda3\\libs")
 
-add_executable(LeapDroneController src/main.cpp)
+add_executable(LeapDroneController src/main.cpp src/process.cpp src/process.h)
 target_link_libraries(LeapDroneController Leap)
-
-add_executable(pythonembedded pythontest.cpp)
-target_link_libraries(pythonembedded Python3)
-
-
-add_executable(pyembedded check_pyenv.cpp)
-target_link_libraries(pythonembedded Python3)
