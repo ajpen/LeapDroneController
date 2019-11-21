@@ -11,15 +11,15 @@ link_directories(LeapSDK/lib/x64/)
 include_directories("C:\\Users\\anfer\\Anaconda3\\include")
 link_directories("C:\\Users\\anfer\\Anaconda3\\libs")
 
-# add_executable(LeapDroneController src/main.cpp src/process/process.cpp src/process/process.h src/main.cpp src/process/main.cpp)
-# target_link_libraries(LeapDroneController Leap)
+ add_executable(LeapDroneController src/main.cpp src/process/process.cpp src/process/process.h src/main.cpp src/process/main.cpp)
+ target_link_libraries(LeapDroneController Leap)
 
 
-### Test Cases
-#add_executable(TestProcessClass
-#        src/process/process.cpp
-#        src/process/main.cpp src/configuration/parser.cpp src/configuration/parser.h src/configuration/main.cpp)
-#
+# Test Cases
+add_executable(TestProcessClass
+        src/process/process.cpp
+        src/process/main.cpp)
+
 
 add_executable(TestConfigurationClass
         src/configuration/exceptions/exceptions.h
