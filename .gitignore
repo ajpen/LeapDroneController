@@ -12,4 +12,11 @@ _deps
 cmake-build-release
 cmake-build-debug
 LeapSDK
-.idea   
+.idea
+.vs
+cmake-build-reelease
+cmake-build-debug
+LeapSDK
+libs
+out
+venv
