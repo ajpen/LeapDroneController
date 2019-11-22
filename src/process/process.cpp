@@ -2,6 +2,7 @@
 // Created by anfer on 11/16/2019.
 //
 
+#include <vector>
 #include "process.h"
 
 bool Process::createIOPipes() {
@@ -53,7 +54,7 @@ void Process::startProcess() {
     close(stdoutPipe[0]);
     close(stdoutPipe[1]);
 
-    execv(command, reinterpret_cast<char *const *>(commandLineArgs));
+    execv(command, commandLineArgs);
     // throw exception
 }
 
@@ -104,4 +105,26 @@ std::string Process::ReadFromSTDOUT() {
 
     std::string dataRead(buffer, (buffer + (bytesRead-1)));
     return dataRead;
+}
+
+
+void Process::setArgs(std::string& cliArgs) {
+    char* const* args = splitBySpace(cliArgs);
+    this->command = args[0];
+    this->commandLineArgs = args;
+}
+
+char* const* splitBySpace(std::string& s){
+    std::string buffer;
+    std::vector<std::string> placeholder;
+    std::vector<char *> strPointers;
+    std::stringstream sstream(s);
+    char * bufferStr = nullptr;
+
+    while (sstream >> buffer){
+        placeholder.push_back(buffer);
+    }
+    strPointers.push_back(const_cast<char *>(placeholder.back().c_str()));
+    strPointers.push_back(nullptr);
+    return &strPointers[0];
 }

@@ -9,6 +9,7 @@
 
 #include <cstdio>
 #include <string>
+#include <sstream>
 #include <cstring>
 #include <sys/wait.h>
 #include <cstdarg>
@@ -19,6 +20,8 @@
 
 #define BUFSIZE 512
 
+
+char* const* splitBySpace(std::string& s);
 
 class Process {
     /*
@@ -41,21 +44,21 @@ class Process {
         pid_t pid = -1;
 
         // program name/path
-        const char * command = nullptr;
+        const char* command = nullptr;
 
         // Full command line argument
         char *const *commandLineArgs = nullptr;
 
         /*Methods*/
+
+        void setArgs(std::string& cliArgs);
         bool createIOPipes();
         bool initializeProcess();
         void startProcess();
 
     public:
-//        explicit Process(const std::string &command){this->command = const_cast<char *>(command.c_str());}
-		explicit Process(const char* command, char *const *clArguments) {
-            this->command = command;
-            this->commandLineArgs = reinterpret_cast<char *const *>(clArguments);
+		explicit Process(std::string args) {
+            setArgs(args);
         }
 
         bool Start();

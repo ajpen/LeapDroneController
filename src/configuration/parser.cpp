@@ -27,7 +27,7 @@ std::string ConfigParser::readLine() {
     return line;
 }
 
-std::string ConfigParser::extractFromDoubleQuotes(std::string& str) {
+std::string ConfigParser::extractFromDoubleQuotes(std::string &str){
     /*
      * Extracts any string between double Quotes.
      * str: String containing a substring surrounded by double quotes.
