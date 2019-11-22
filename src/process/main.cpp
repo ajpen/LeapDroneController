@@ -9,11 +9,14 @@ using namespace std;
 
 int main(int argc, char* argv[]){
 
-    const char * command = "python child.py";
+    const char * command = "python";
+    const char * args[2] = {"python","child.py"};
     string expected = "I received something";
     string data = "something";
 
-    Process process(command);
+
+    // TODO: Figure out a way to pass a char* array as the arguments to execv
+    Process process(command, args);
     if (!process.Start()){
         cout << "Failed to start process." << endl;
         exit(1);
