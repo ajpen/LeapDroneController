@@ -7,9 +7,6 @@ set(CMAKE_CXX_STANDARD 14)
 include_directories(LeapSDK/include)
 link_directories(LeapSDK/lib/x64/)
 
-## add python development libraries
-include_directories("C:\\Users\\anfer\\Anaconda3\\include")
-link_directories("C:\\Users\\anfer\\Anaconda3\\libs")
 
  add_executable(LeapDroneController src/main.cpp src/process/process.cpp src/process/process.h src/main.cpp src/process/main.cpp)
  target_link_libraries(LeapDroneController Leap)
