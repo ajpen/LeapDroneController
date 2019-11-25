@@ -26,7 +26,6 @@ class ConfigParser {
      * */
     private:
         const char separator = ':';
-        const char itemDelimiter = '\n';
         std::ifstream configFile;
 
 

@@ -90,7 +90,8 @@ Config ConfigParser::Parse(std::string& configPath) {
     Config configuration;
 
     if(!openFile(configPath)){
-        return Config{};
+        // TODO: throw better exception
+        throw;
     }
 
     std::pair<std::string, std::string> configElement;

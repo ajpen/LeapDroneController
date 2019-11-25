@@ -1,0 +1,10 @@
+The client always acknowledges each request it gets.
+The application will wait on this acknowledgement before proceeding.
+
+Communication thread:
+    pops commands from the queue
+    sends commands to the drone and receives responses.
+
+Gesture thread:
+    detects gestures from the Leap motion by polling the controller.
+    On detected gesture, it sends commands by pushing them onto a queue.

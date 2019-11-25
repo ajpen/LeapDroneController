@@ -9,9 +9,9 @@ using namespace std;
 
 int main(int argc, char* argv[]){
 
-    string s = "python child.py";
+    string s = "python3 child.py";
     string expected = "I received something";
-    string data = "something";
+    string data = "something\n";
 
 
     // TODO: Figure out a way to pass a char* array as the arguments to execv
@@ -27,8 +27,8 @@ int main(int argc, char* argv[]){
     }
     string recv = process.ReadFromSTDOUT();
 
-    if (recv == expected){
-        cout << "expected " << expected << "from process but got " << recv << endl;
+    if (recv != expected){
+        cout << "expected '" << expected << "' from process but got " << recv << endl;
         exit(1);
     }
 

@@ -2,7 +2,6 @@
 // Created by anfer on 11/16/2019.
 //
 
-#include <vector>
 #include "process.h"
 
 bool Process::createIOPipes() {
@@ -15,8 +14,11 @@ bool Process::createIOPipes() {
         return false;
     }
 
-    return (stdoutPipe[0] > STDERR_FILENO && stdoutPipe[1] > STDERR_FILENO
-            && stdinPipe[0] > STDERR_FILENO && stdinPipe[1] > STDERR_FILENO);
+    // set Pollfd to stdout
+    stdoutPollFd.fd = stdoutPipe[0];
+
+    return (stdoutPipe[PIPE_READ] > STDERR_FILENO && stdoutPipe[PIPE_WRITE] > STDERR_FILENO
+            && stdinPipe[PIPE_READ] > STDERR_FILENO && stdinPipe[PIPE_WRITE] > STDERR_FILENO);
 }
 
 bool Process::initializeProcess() {
@@ -28,34 +30,42 @@ bool Process::initializeProcess() {
      * Returns false if starting the process failed, else true.
      */
 
-    if ((pid = fork()) < 0){
-        return false;
-    }
-
+    pid = fork();
     if (pid == 0){
         startProcess();
     }
+
+    else if (pid > 0){
+        close(stdinPipe[PIPE_READ]);
+        close(stdoutPipe[PIPE_WRITE]);
+    }
     else{
-        close(stdinPipe[0]);
-        close(stdoutPipe[1]);
+        return false;
     }
     return true;
+
 }
 
 void Process::startProcess() {
     fflush(nullptr);
 
-    if (dup2(stdinPipe[0], STDIN_FILENO) < 0 || dup2(stdoutPipe[1], STDOUT_FILENO) < 0){
-        // throw exception
+    if (dup2(stdinPipe[PIPE_READ], STDIN_FILENO) < 0 || dup2(stdoutPipe[PIPE_WRITE], STDOUT_FILENO) < 0){
+        // TODO: throw some exception
+        throw;
     }
 
-    close(stdinPipe[0]);
-    close(stdinPipe[1]);
-    close(stdoutPipe[0]);
-    close(stdoutPipe[1]);
+    close(stdinPipe[PIPE_READ]);
+    close(stdinPipe[PIPE_WRITE]);
+    close(stdoutPipe[PIPE_READ]);
+    close(stdoutPipe[PIPE_WRITE]);
 
-    execv(command, commandLineArgs);
-    // throw exception
+    execvp(command, &const_cast<char **>(commandLineArgs.data())[0]);
+
+// I should use this to do some logging later on
+//    std::ofstream f;
+//    f.open ("child.log");
+//    f << "Child execv failed: " << strerror(errno);
+//    f.close();
 }
 
 
@@ -81,14 +91,21 @@ void Process::Stop() {
     int status;
     if (pid > 0){
         kill(pid, SIGTERM);
-        close(stdinPipe[1]);
-        close(stdoutPipe[0]);
+        close(stdinPipe[PIPE_WRITE]);
+        close(stdoutPipe[PIPE_READ]);
 
         waitpid(pid, &status, 0);
     }
 }
 
+/*
+ * Writes data as is to STDIN of the process.
+ *
+ * Note that the child may continue waiting on read data isn't terminated
+ * by a newline character. This is specific to the child.
+ * */
 bool Process::WriteToSTDIN(std::string& data) {
+
 
     return write(stdinPipe[1], data.c_str(), data.size()) == data.size();
 }
@@ -103,28 +120,33 @@ std::string Process::ReadFromSTDOUT() {
         return "";
     }
 
-    std::string dataRead(buffer, (buffer + (bytesRead-1)));
+    std::string dataRead(buffer, (buffer + (bytesRead)));
     return dataRead;
 }
 
 
+/*
+ * splits the command line arguments (cliArgs) by space and prepares them for execv()
+ * */
 void Process::setArgs(std::string& cliArgs) {
-    char* const* args = splitBySpace(cliArgs);
-    this->command = args[0];
-    this->commandLineArgs = args;
-}
 
-char* const* splitBySpace(std::string& s){
-    std::string buffer;
-    std::vector<std::string> placeholder;
-    std::vector<char *> strPointers;
-    std::stringstream sstream(s);
-    char * bufferStr = nullptr;
+    // Reset any previous commands
+    commandLineArgs.clear();
+    stringCommandLineArgs.clear();
 
-    while (sstream >> buffer){
-        placeholder.push_back(buffer);
+    std::size_t start = 0, end = 0;
+    while ((end = cliArgs.find(' ', start)) != std::string::npos) {
+        stringCommandLineArgs.push_back(cliArgs.substr(start, end - start));
+        start = end + 1;
     }
-    strPointers.push_back(const_cast<char *>(placeholder.back().c_str()));
-    strPointers.push_back(nullptr);
-    return &strPointers[0];
+    stringCommandLineArgs.push_back(cliArgs.substr(start));
+    for (auto & stringCommandLineArg : stringCommandLineArgs) {
+        commandLineArgs.push_back(const_cast<char *>(stringCommandLineArg.c_str()));
+    }
+
+    commandLineArgs.push_back(nullptr);
+
+    // set the command string (the first cli argument)
+    command = commandLineArgs[0];
+
 }

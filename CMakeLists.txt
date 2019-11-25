@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.15)
 project(LeapDroneController)
 
 set(CMAKE_CXX_STANDARD 14)
+set(THREADING_LINKER_FLAG "-lpthread")
+
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${THREADING_LINKER_FLAG}")
+
 
 ## Add leap motion library
 include_directories(LeapSDK/include)
@@ -23,3 +27,11 @@ add_executable(TestConfigurationClass
         src/configuration/config.h
         src/configuration/parser.cpp
         src/configuration/main.cpp)
+
+
+add_executable(
+        TestMamboClient
+        src/configuration/parser.cpp
+        src/droneclient/mamboclient.cpp
+        src/process/process.cpp
+        src/droneclient/main.cpp)

@@ -11,17 +11,23 @@
 #include <string>
 #include <sstream>
 #include <cstring>
+#include <vector>
 #include <sys/wait.h>
 #include <cstdarg>
 #include <unistd.h>
 #include <cerrno>
 #include <cstdlib>
+#include <poll.h>
+#include <fstream>
+#include <errno.h>
+
+#include "../configuration/config.h"
 
 
+#define PIPE_READ 0
+#define PIPE_WRITE 1
 #define BUFSIZE 512
 
-
-char* const* splitBySpace(std::string& s);
 
 class Process {
     /*
@@ -34,7 +40,7 @@ class Process {
 
     private:
 
-        /*attributes?*/
+        /*attributes*/
 
         // Pipes
         int stdinPipe[2] = {};
@@ -47,19 +53,34 @@ class Process {
         const char* command = nullptr;
 
         // Full command line argument
-        char *const *commandLineArgs = nullptr;
+        std::vector<char*> commandLineArgs;
+        std::vector<std::string> stringCommandLineArgs;
 
         /*Methods*/
-
-        void setArgs(std::string& cliArgs);
         bool createIOPipes();
         bool initializeProcess();
         void startProcess();
+
+    protected:
+    // Attributes
+    struct pollfd stdoutPollFd = {.fd = stdoutPipe[0], .events = POLLIN};
+
+    void setArgs(std::string& cliArgs);
 
     public:
 		explicit Process(std::string args) {
             setArgs(args);
         }
+
+        explicit Process(Config& configuration){
+		    auto commandGiven = configuration.find("command");
+		    if ( commandGiven != configuration.end()){
+		        setArgs(commandGiven->second);
+		    }
+		    else{
+                // TODO: throw some exception
+		    }
+		}
 
         bool Start();
         void Stop();
