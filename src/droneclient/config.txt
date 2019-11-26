@@ -1,4 +1,4 @@
-"command":"python client.py"
+"command":"python3 client.py"
 "droneAddr":"'d0:3a:ee:02:e6:22'"
 "maxPitch":"40"
 "maxVertical":"34"

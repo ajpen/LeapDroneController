@@ -8,7 +8,6 @@
 #include "config.h"
 #include <string>
 #include <fstream>
-#include "exceptions/exceptions.h"
 
 
 class ConfigParser {

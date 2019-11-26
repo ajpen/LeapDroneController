@@ -50,8 +50,7 @@ void Process::startProcess() {
     fflush(nullptr);
 
     if (dup2(stdinPipe[PIPE_READ], STDIN_FILENO) < 0 || dup2(stdoutPipe[PIPE_WRITE], STDOUT_FILENO) < 0){
-        // TODO: throw some exception
-        throw;
+        throw std::runtime_error("(Child) Process: Failed to duplicate standard I/O file descriptors");
     }
 
     close(stdinPipe[PIPE_READ]);
@@ -61,13 +60,11 @@ void Process::startProcess() {
 
     execvp(command, &const_cast<char **>(commandLineArgs.data())[0]);
 
-// I should use this to do some logging later on
-//    std::ofstream f;
-//    f.open ("child.log");
-//    f << "Child execv failed: " << strerror(errno);
-//    f.close();
+    // if the below executes, then starting the child failed
+    std::string error = "(Child) Process: Execvp failed: ";
+    error += strerror(errno);
+    throw std::runtime_error(error);
 }
-
 
 
 bool Process::Start() {

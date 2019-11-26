@@ -65,6 +65,9 @@ class MamboFlyClient : Process {
  *
  * fly_direct(roll, pitch, yaw, vertical_movement): direct flight command for the drone. This command is asynchronous
  * on the client side.
+ *
+ * Commands are sent as space separated strings, with the first string being the command, followed by positional
+ * arguments
  * */
 
     private:
@@ -76,7 +79,7 @@ class MamboFlyClient : Process {
         // For synchronizing child process and processing thread termination
         const std::string stopSignal = "\tstop\t\n";
         std::mutex processingLock;
-        bool isProcessingThreadRunning;
+        bool isProcessingThreadRunning = false;
 
         void setProcessThreadRunning(bool isRunning);
         bool isStillProcessing();
@@ -103,9 +106,10 @@ class MamboFlyClient : Process {
         explicit MamboFlyClient(Config& configuration);
         void InitializeAndConnect();
         void SendCommand(std::string command);
+        void Takeoff(int timeout);
+        void Land(int timeout);
+        void Fly(int roll=0, int pitch=0, int yaw=0, int vertical_movement=0);
         void StopProcessing();
-
-
 };
 
 

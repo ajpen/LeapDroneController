@@ -19,7 +19,7 @@
 #include <cstdlib>
 #include <poll.h>
 #include <fstream>
-#include <errno.h>
+#include <cerrno>
 
 #include "../configuration/config.h"
 
@@ -78,7 +78,7 @@ class Process {
 		        setArgs(commandGiven->second);
 		    }
 		    else{
-                // TODO: throw some exception
+                throw std::runtime_error("Process: Error, no 'command' configuration set.");
 		    }
 		}
 

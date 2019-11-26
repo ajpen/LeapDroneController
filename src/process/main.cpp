@@ -10,11 +10,10 @@ using namespace std;
 int main(int argc, char* argv[]){
 
     string s = "python3 child.py";
-    string expected = "I received something";
+    string expected = "I received something\n";
     string data = "something\n";
 
 
-    // TODO: Figure out a way to pass a char* array as the arguments to execv
     Process process(s);
     if (!process.Start()){
         cout << "Failed to start process." << endl;

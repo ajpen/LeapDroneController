@@ -20,7 +20,7 @@ std::string ConfigParser::readLine() {
     std::string line;
 
     if(!configFile.is_open()){
-        throw ClosedFileOperationException();
+        throw std::runtime_error("ConfigParser: File operation done on a closed file.");
     }
 
     std::getline(configFile, line);
@@ -55,7 +55,7 @@ std::string ConfigParser::extractFromDoubleQuotes(std::string &str){
 
     // If loop ended before the extracted string was returned, then either there
     // was no quoted string, or the matching quote was not found
-    throw ConfigIncompleteQuotesException();
+    throw std::runtime_error("ConfigParser: Quoted string lacks terminating quote.");
 }
 
 std::pair<std::string, std::string> ConfigParser::parseLine(std::string& str){
@@ -65,18 +65,18 @@ std::pair<std::string, std::string> ConfigParser::parseLine(std::string& str){
      * */
     std::size_t separatorPos = str.find(separator);
     if (separatorPos == std::string::npos){
-        throw ConfigBadConfigException();
+        throw std::runtime_error("ConfigParser: Bad configuration format.");
     }
 
     std::string key = str.substr(0, separatorPos);
     std::string value = str.substr(separatorPos);
 
     if (key.size() < 3){
-        throw ConfigBadConfigException();
+        throw std::runtime_error("ConfigParser: Bad configuration format.");
     }
 
     if (value.size() < 3){
-        throw ConfigBadConfigException();
+        throw std::runtime_error("ConfigParser: Bad configuration format.");
     }
 
     key = extractFromDoubleQuotes(key);
@@ -90,8 +90,7 @@ Config ConfigParser::Parse(std::string& configPath) {
     Config configuration;
 
     if(!openFile(configPath)){
-        // TODO: throw better exception
-        throw;
+        throw std::runtime_error("ConfigParser: Failed to open configuration file");
     }
 
     std::pair<std::string, std::string> configElement;

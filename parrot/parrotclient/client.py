@@ -1,65 +1,145 @@
 """
-Demo the trick flying for the python interface
+Client for the Leap Drone Controller
 
-Author: Amy McGovern
+Supports the Mambo Fly drone through bluetooth connection
 """
 
 from pyparrot.Minidrone import Mambo
+import argparse
+from multiprocessing import Queue, Process
+import queue
+import sys
 
-# you will need to change this to the address of YOUR mambo
-mamboAddr = "d0:3a:ee:02:e6:22"
 
-# make my mambo object
-# remember to set True/False for the wifi depending on if you are using the wifi or the BLE to connect
-mambo = Mambo(mamboAddr, use_wifi=False)
+STOPSIGNAL = "\tstop\t"
 
-print("trying to connect")
-success = mambo.connect(num_retries=3)
-print("connected: %s" % success)
 
-if (success):
-    # get the state information
-    print("sleeping")
-    mambo.smart_sleep(2)
-    mambo.ask_for_state_update()
-    mambo.smart_sleep(2)
+"""
+Methods for responding to parent
+"""
 
-    print("taking off!")
-    mambo.safe_takeoff(5)
 
-    # if (mambo.sensors.flying_state != "emergency"):
-    #     print("flying state is %s" % mambo.sensors.flying_state)
-    #     print("Flying direct: going up")
-    #     mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=20, duration=1)
+def complain(message):
+    """
+    Sends a message to the parent, likely one it doesn't expect.
+    After this method is called, the child should either exit or
+    expect that the parent will signal its end.
+    :param message: whatever you'd like the parent to know
+    :return:
+    """
+    print(message)
 
-    #     print("flip left")
-    #     print("flying state is %s" % mambo.sensors.flying_state)
-    #     success = mambo.flip(direction="left")
-    #     print("mambo flip result %s" % success)
-    #     mambo.smart_sleep(5)
 
-    #     print("flip right")
-    #     print("flying state is %s" % mambo.sensors.flying_state)
-    #     success = mambo.flip(direction="right")
-    #     print("mambo flip result %s" % success)
-    #     mambo.smart_sleep(5)
+def acknowledge_command():
+    print("ok")
 
-    #     print("flip front")
-    #     print("flying state is %s" % mambo.sensors.flying_state)
-    #     success = mambo.flip(direction="front")
-    #     print("mambo flip result %s" % success)
-    #     mambo.smart_sleep(5)
 
-    #     print("flip back")
-    #     print("flying state is %s" % mambo.sensors.flying_state)
-    #     success = mambo.flip(direction="back")
-    #     print("mambo flip result %s" % success)
-    #     mambo.smart_sleep(5)
+"""
+Command execution and drone communication methods
+"""
 
-    #     print("landing")
-    #     print("flying state is %s" % mambo.sensors.flying_state)
-    #     mambo.safe_land(5)
-    #     mambo.smart_sleep(5)
 
-    # print("disconnect")
-    # mambo.disconnect()
+def listen_and_execute(command_queue):
+    """
+    Reads commands from stdin and passes them to the drone object
+    """
+    while True:
+        message = input()
+
+        try:
+            command_queue.put_nowait(message)
+        except queue.Full:
+            print("Command {} was skipped because child processor is overworked (queue full".format(message),
+                  file=sys.stderr)
+
+        acknowledge_command()
+        if message == STOPSIGNAL:
+            break
+
+
+class Processor(object):
+    """
+    consumes commands and executes them
+    """
+
+    def __init__(self, command_queue, **kwargs):
+        self.queue = command_queue
+        self.is_flying = False
+
+        self.droneAddr = kwargs.get('droneAddr', None)
+        self.maxPitch = kwargs.get('maxPitch') or 50
+        self.maxVertical = kwargs.get('maxVertical') or 50
+
+        if self.droneAddr is None:
+            sys.exit()
+
+        # always connect with BT
+        self.client = Mambo(self.droneAddr, use_wifi=False)
+
+        # set max horizontal/vertical speed
+        self.client.set_max_tilt(self.maxPitch)
+        self.client.set_max_vertical_speed(self.maxVertical)
+
+    def connect(self):
+        return self.client.connect(3)
+
+    def fly(self, roll, pitch, yaw, vertical_movement):
+        duration = 0
+
+        if self.is_flying:
+            self.client.fly_direct(roll, pitch, yaw, vertical_movement, duration)
+            return True
+        else:
+            print("ERROR: Cannot fly when drone is not in flight mode", file=sys.stderr)
+            return False
+
+    def land(self, timeout=10):
+        self.client.safe_land(timeout)
+        return True
+
+    def takeoff(self, timeout=10):
+        self.client.safe_takeoff(timeout)
+        return True
+
+    def process_commands(self):
+        while True:
+            message = self.queue.get()
+
+            # Ignore blank commands
+            if len(message) <= 0:
+                continue
+
+            if message == STOPSIGNAL:
+                if self.is_flying:
+                    self.client.safe_land(10)
+                self.client.disconnect()
+                break
+
+            command = message.split()
+            if not self.__getattribute__(command[0])(args=command[1:]):
+                self.client.safe_emergency(10)
+                self.client.disconnect()
+                complain("Command {} failed!".format(message))
+                break
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--droneAddr", required=True)
+    parser.add_argument("--maxPitch", nargs="?", default=None)
+    parser.add_argument("--maxVertical", nargs="?", default=None)
+
+    args = vars(parser.parse_args())
+
+    pendingCommands = Queue()
+    processor = Processor(pendingCommands, **args)
+    subprocess_args = (processor,)
+
+    processor_process = Process(target=Processor.process_commands, args=subprocess_args, daemon=True)
+    processor_process.start()
+
+    # start reading commands from the parent
+    listen_and_execute(pendingCommands)
+
+    # wait on the process_command and then exit
+    processor_process.join(timeout=10)

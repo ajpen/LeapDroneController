@@ -23,7 +23,6 @@ add_executable(TestProcessClass
 
 
 add_executable(TestConfigurationClass
-        src/configuration/exceptions/exceptions.h
         src/configuration/config.h
         src/configuration/parser.cpp
         src/configuration/main.cpp)
