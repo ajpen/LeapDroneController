@@ -65,10 +65,11 @@ class Processor(object):
     def __init__(self, command_queue, **kwargs):
         self.queue = command_queue
         self.is_flying = False
+        self.connected = False
 
         self.droneAddr = kwargs.get('droneAddr', None)
-        self.maxPitch = kwargs.get('maxPitch') or 50
-        self.maxVertical = kwargs.get('maxVertical') or 50
+        self.maxPitch = int(kwargs.get('maxPitch') or 50)
+        self.maxVertical = int(kwargs.get('maxVertical') or 50)
 
         if self.droneAddr is None:
             sys.exit()
@@ -76,15 +77,25 @@ class Processor(object):
         # always connect with BT
         self.client = Mambo(self.droneAddr, use_wifi=False)
 
-        # set max horizontal/vertical speed
-        self.client.set_max_tilt(self.maxPitch)
-        self.client.set_max_vertical_speed(self.maxVertical)
+        # # set max horizontal/vertical speed
+        # self.client.set_max_tilt(self.maxPitch)
+        # self.client.set_max_vertical_speed(self.maxVertical)
 
     def connect(self):
-        return self.client.connect(3)
+
+        if self.client.connect(3):
+            self.connected = True
+            return True
+        
+        return False
 
     def fly(self, roll, pitch, yaw, vertical_movement):
-        duration = 0
+        duration = 1
+        
+        roll = int(roll)
+        pitch = int(pitch)
+        yaw = int(yaw)
+        vertical_movement = int(vertical_movement)
 
         if self.is_flying:
             self.client.fly_direct(roll, pitch, yaw, vertical_movement, duration)
@@ -95,15 +106,28 @@ class Processor(object):
 
     def land(self, timeout=10):
         self.client.safe_land(timeout)
+        self.is_flying=False
         return True
+
+    def emergency(self):
+        self.client.safe_emergency(10)
+        self.client.disconnect()
+        return False
+
 
     def takeoff(self, timeout=10):
         self.client.safe_takeoff(timeout)
+        self.is_flying = True
         return True
 
     def process_commands(self):
         while True:
-            message = self.queue.get()
+            try:
+                message = self.queue.get_nowait()
+            except queue.Empty:
+                if self.connected:
+                    self.client.smart_sleep(1)
+                continue
 
             # Ignore blank commands
             if len(message) <= 0:
@@ -116,7 +140,7 @@ class Processor(object):
                 break
 
             command = message.split()
-            if not self.__getattribute__(command[0])(args=command[1:]):
+            if not self.__getattribute__(command[0])(*command[1:]):
                 self.client.safe_emergency(10)
                 self.client.disconnect()
                 complain("Command {} failed!".format(message))

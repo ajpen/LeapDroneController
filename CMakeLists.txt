@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(LeapDroneController)
 
 set(CMAKE_CXX_STANDARD 14)
-set(THREADING_LINKER_FLAG "-lpthread")
+set(THREADING_LINKER_FLAG "-lpthread  -pthread")
 
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${THREADING_LINKER_FLAG}")
 
