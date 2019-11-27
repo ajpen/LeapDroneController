@@ -106,7 +106,7 @@ class Processor(object):
 
     def land(self, timeout=10):
         self.client.safe_land(timeout)
-        self.is_flying=False
+        self.is_flying = False
         return True
 
     def emergency(self):
@@ -114,19 +114,25 @@ class Processor(object):
         self.client.disconnect()
         return False
 
-
     def takeoff(self, timeout=10):
         self.client.safe_takeoff(timeout)
         self.is_flying = True
         return True
 
     def process_commands(self):
+        seconds_idle = 0
         while True:
             try:
                 message = self.queue.get_nowait()
             except queue.Empty:
                 if self.connected:
                     self.client.smart_sleep(1)
+                    seconds_idle += 1
+
+                # stop flying if idle for too long
+                if seconds_idle >= 10:
+                    self.client.safe_land(10)
+
                 continue
 
             # Ignore blank commands
@@ -145,6 +151,9 @@ class Processor(object):
                 self.client.disconnect()
                 complain("Command {} failed!".format(message))
                 break
+
+            # reset idle time
+            seconds_idle = 0
 
 
 if __name__ == "__main__":

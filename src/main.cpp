@@ -31,6 +31,10 @@ int main(int argc, char** argv) {
     SampleListener listener;
     Controller controller;
 
+    // init client
+    // add code to listener to recognise gestures and send commands
+    // define fly, takeoff and land
+
     controller.addListener(listener);
 
     // Keep this process running until Enter is pressed
