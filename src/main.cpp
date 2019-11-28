@@ -12,6 +12,10 @@
 
 using namespace Leap;
 
+
+// Change this to be a Mambo fly drone specific listener.
+// Store the client apart of the listener and then access that
+// through the class members.
 class SampleListener : public Listener {
 public:
     void onConnect(const Controller&) override;
@@ -19,11 +23,11 @@ public:
 };
 
 void SampleListener::onConnect(const Controller& controller) {
-    std::cout << "Connected" << std::endl;
+    std::cout << "Leap Motion Connected." << std::endl;
 }
 
 void SampleListener::onFrame(const Controller& controller) {
-    std::cout << "Frame available" << std::endl;
+
 }
 
 

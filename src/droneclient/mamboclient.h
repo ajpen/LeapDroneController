@@ -11,6 +11,20 @@
 
 #include "../process/process.h"
 
+class DroneState{
+private:
+    int idleFrames;
+    bool flightState = false;
+    bool connectionStatus = false;
+    std::mutex droneStateLock;
+public:
+    void incrementIdleFrames();
+    bool isIdle(float framerate);
+    bool isInFlight();
+    void setFlightState(bool currentFlightState);
+    bool isConnected();
+    void setConnectionStatus(bool isCurrentlyConnected);
+};
 
 class MamboFlyClient : Process {
 /*
@@ -74,7 +88,6 @@ class MamboFlyClient : Process {
 
         // max seconds to wait on the child to respond
         int processCommunicationTimeout = 500;
-        bool clientReady = false;
 
         // For synchronizing child process and processing thread termination
         const std::string stopSignal = "\tstop\t\n";
@@ -84,6 +97,10 @@ class MamboFlyClient : Process {
         void setProcessThreadRunning(bool isRunning);
         bool isStillProcessing();
 
+
+        // Related to the state of the drone commanded by the client
+        // This state is assumed and may not be always accurate.
+        DroneState droneSate;
 
         // Related to the child communication thread (commandProcessingThread)
         std::queue<std::string> pendingCommands;

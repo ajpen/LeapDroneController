@@ -30,6 +30,7 @@ MamboFlyClient::MamboFlyClient(Config& configuration) : Process(configuration){
         if (maxVertical != configuration.end()){
             baseCommand += " --maxVertical=" + maxVertical->second;
         }
+        droneSate = DroneState{};
         setArgs(baseCommand);
 }
 
@@ -188,6 +189,7 @@ void MamboFlyClient::setProcessThreadRunning(bool isRunning) {
 void MamboFlyClient::Takeoff(int timeout) {
     std::string command = "takeoff ";
     SendCommand(command + std::to_string(timeout));
+
 }
 
 void MamboFlyClient::Land(int timeout) {
@@ -204,3 +206,44 @@ void MamboFlyClient::Fly(int roll, int pitch, int yaw, int vertical_movement) {
 }
 
 
+bool DroneState::isInFlight() {
+    bool inFlight;
+    droneStateLock.lock();
+    inFlight = flightState;
+    droneStateLock.unlock();
+    return inFlight;
+}
+
+void DroneState::setFlightState(bool currentFlightState) {
+    droneStateLock.lock();
+    flightState = currentFlightState;
+    droneStateLock.unlock();
+}
+
+bool DroneState::isConnected() {
+    bool connected;
+    droneStateLock.lock();
+    connected = connectionStatus;
+    droneStateLock.unlock();
+    return connected;
+}
+
+void DroneState::setConnectionStatus(bool isCurrentlyConnected) {
+    droneStateLock.lock();
+    connectionStatus = isCurrentlyConnected;
+    droneStateLock.unlock();
+}
+
+void DroneState::incrementIdleFrames() {
+    droneStateLock.lock();
+    idleFrames++;
+    droneStateLock.unlock();
+}
+
+bool DroneState::isIdle(float framerate) {
+    bool isDroneIdle;
+    droneStateLock.lock();
+    isDroneIdle = static_cast<double>(static_cast<double>(idleFrames)/framerate) > 5;
+    droneStateLock.unlock();
+    return isDroneIdle;
+}

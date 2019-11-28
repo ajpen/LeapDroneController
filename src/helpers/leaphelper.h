@@ -37,5 +37,23 @@ bool isClockwise(Leap::CircleGesture circleGesture){
 }
 
 
+bool isTakeoffGesture(Leap::Frame frame){
+    for (auto g: frame.gestures()){
+        if (g.type() == Leap::CircleGesture){
+            return isClockwise(g);
+        }
+    }
+    return false;
+}
+
+
+bool isLandingGesture(Leap::Frame frame){
+    for (auto g: frame.gestures()){
+        if (g.type() == Leap::CircleGesture){
+            return !isClockwise(g);
+        }
+    }
+    return false;
+}
 
 #endif //LEAPDRONECONTROLLER_LEAP_H
