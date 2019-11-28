@@ -19,5 +19,8 @@ int main(){
     client.SendCommand(command1);
     client.SendCommand(command2);
     client.SendCommand(command3);
+    client.Takeoff();
+    client.Fly(10, 20, 30, 40);
+    client.Land();
     client.StopProcessing();
 }

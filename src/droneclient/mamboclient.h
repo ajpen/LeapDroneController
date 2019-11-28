@@ -105,9 +105,11 @@ class MamboFlyClient : Process {
     public:
         explicit MamboFlyClient(Config& configuration);
         void InitializeAndConnect();
+
+        // Sends commands to the child
         void SendCommand(std::string command);
-        void Takeoff(int timeout);
-        void Land(int timeout);
+        void Takeoff(int timeout = 5);
+        void Land(int timeout = 5);
         void Fly(int roll=0, int pitch=0, int yaw=0, int vertical_movement=0);
         void StopProcessing();
 };

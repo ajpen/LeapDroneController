@@ -14,8 +14,8 @@ using namespace Leap;
 
 class SampleListener : public Listener {
 public:
-    virtual void onConnect(const Controller&);
-    virtual void onFrame(const Controller&);
+    void onConnect(const Controller&) override;
+    void onFrame(const Controller&) override;
 };
 
 void SampleListener::onConnect(const Controller& controller) {

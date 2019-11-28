@@ -185,3 +185,22 @@ void MamboFlyClient::setProcessThreadRunning(bool isRunning) {
     processingLock.unlock();
 }
 
+void MamboFlyClient::Takeoff(int timeout) {
+    std::string command = "takeoff ";
+    SendCommand(command + std::to_string(timeout));
+}
+
+void MamboFlyClient::Land(int timeout) {
+    std::string command = "land ";
+    SendCommand(command + std::to_string(timeout));
+}
+
+void MamboFlyClient::Fly(int roll, int pitch, int yaw, int vertical_movement) {
+    std::string command = "fly ";
+    command += std::to_string(roll) + " " + std::to_string(pitch) + " " +
+            std::to_string(yaw) + " " + std::to_string(vertical_movement);
+
+    SendCommand(command);
+}
+
+

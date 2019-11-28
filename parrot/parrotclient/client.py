@@ -90,7 +90,7 @@ class Processor(object):
         return False
 
     def fly(self, roll, pitch, yaw, vertical_movement):
-        duration = 1
+        duration = 0
         
         roll = int(roll)
         pitch = int(pitch)
