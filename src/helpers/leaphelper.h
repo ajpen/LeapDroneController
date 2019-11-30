@@ -9,6 +9,14 @@
 #include "Leap.h"
 
 
+enum SwipeDirection {
+    Left,
+    Right,
+    Up,
+    Down
+};
+
+
 /*
  * Data conversion functions: Below are helpers for handling and converting data from the leap motion controller. */
 
@@ -37,23 +45,92 @@ bool isClockwise(Leap::CircleGesture circleGesture){
 }
 
 
-bool isTakeoffGesture(Leap::Frame frame){
+/*
+ * Returns the direction of a swipe within a frame, or null if no gestures are detected
+ * */
+SwipeDirection GetSwipeDirection(Leap::Frame frame){
     for (auto g: frame.gestures()){
-        if (g.type() == Leap::CircleGesture){
-            return isClockwise(g);
+        if (g.type() == Leap::SwipeGesture){
+            direction = g.direction().toFloatArray(); // [x, y, z]
+
+            // compares the vertical direction of the swipe with the horizontal direction
+            if (direction[1] > direction[0]){
+                if (direction[1] > 0){
+                    return Up;
+                }
+                else{
+                    return Down;
+                }
+            }
+            else{
+                if (direction[0] > 0){
+                    return Right;
+                }
+                else{
+                    return Left;
+                }
+            }
         }
     }
-    return false;
+    return nullptr;
 }
 
+
+bool isTakeoffGesture(Leap::Frame frame){
+    int numOfHands = 0;
+
+    for (auto hand : frame.hands()){
+        if (hand.isValid()){
+            numOfHands++;
+        }
+    }
+
+    // Takeoff only happens when 2 hands are in the frame
+    if (numOfHands != 2){
+        return false;
+    }
+
+    return GetSwipeDirection(frame) == Up;
+}
 
 bool isLandingGesture(Leap::Frame frame){
-    for (auto g: frame.gestures()){
-        if (g.type() == Leap::CircleGesture){
-            return !isClockwise(g);
+    int numOfHands = 0;
+
+    for (auto hand : frame.hands()){
+        if (hand.isValid()){
+            numOfHands++;
         }
     }
-    return false;
+
+    // Landing only happens when 2 hands are in the frame
+    if (numOfHands != 2){
+        return false;
+    }
+
+    return GetSwipeDirection(frame) == Down;
 }
+
+
+
+
+
+//bool isTakeoffGesture(Leap::Frame frame){
+//    for (auto g: frame.gestures()){
+//        if (g.type() == Leap::CircleGesture){
+//            return isClockwise(g);
+//        }
+//    }
+//    return false;
+//}
+//
+//
+//bool isLandingGesture(Leap::Frame frame){
+//    for (auto g: frame.gestures()){
+//        if (g.type() == Leap::CircleGesture){
+//            return !isClockwise(g);
+//        }
+//    }
+//    return false;
+//}
 
 #endif //LEAPDRONECONTROLLER_LEAP_H

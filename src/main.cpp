@@ -8,7 +8,10 @@
 
 #include <iostream>
 #include <cstring>
+
 #include "Leap.h"
+#include "droneclient/mamboclient.h"
+#include "configuration/parser.h"
 
 using namespace Leap;
 
@@ -16,24 +19,31 @@ using namespace Leap;
 // Change this to be a Mambo fly drone specific listener.
 // Store the client apart of the listener and then access that
 // through the class members.
-class SampleListener : public Listener {
+class DroneControllerListener : public Listener {
+
+private:
+    MamboFlyClient* client;
+
 public:
     void onConnect(const Controller&) override;
     void onFrame(const Controller&) override;
 };
 
-void SampleListener::onConnect(const Controller& controller) {
+void DroneControllerListener::onConnect(const Controller& controller) {
     std::cout << "Leap Motion Connected." << std::endl;
 }
 
-void SampleListener::onFrame(const Controller& controller) {
+void DroneControllerListener::onFrame(const Controller& controller) {
 
 }
 
 
 int main(int argc, char** argv) {
-    SampleListener listener;
+    DroneControllerListener listener;
     Controller controller;
+
+    // Enable the swipe gesture for takeoff/landing
+    controller.enableGesture(Gesture::TYPE_SWIPE);
 
     // init client
     // add code to listener to recognise gestures and send commands

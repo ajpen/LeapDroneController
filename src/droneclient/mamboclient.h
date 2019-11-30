@@ -11,20 +11,7 @@
 
 #include "../process/process.h"
 
-class DroneState{
-private:
-    int idleFrames;
-    bool flightState = false;
-    bool connectionStatus = false;
-    std::mutex droneStateLock;
-public:
-    void incrementIdleFrames();
-    bool isIdle(float framerate);
-    bool isInFlight();
-    void setFlightState(bool currentFlightState);
-    bool isConnected();
-    void setConnectionStatus(bool isCurrentlyConnected);
-};
+
 
 class MamboFlyClient : Process {
 /*
@@ -97,15 +84,9 @@ class MamboFlyClient : Process {
         void setProcessThreadRunning(bool isRunning);
         bool isStillProcessing();
 
-
-        // Related to the state of the drone commanded by the client
-        // This state is assumed and may not be always accurate.
-        DroneState droneSate;
-
         // Related to the child communication thread (commandProcessingThread)
         std::queue<std::string> pendingCommands;
         std::mutex pendingCommandsLock;
-        std::thread* commandProcessingThread = nullptr;
 
         // Communication protocol methods
         bool waitForRead(int timeoutSeconds);
