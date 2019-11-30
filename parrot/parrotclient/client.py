@@ -90,21 +90,26 @@ class Processor(object):
         return False
 
     def fly(self, roll, pitch, yaw, vertical_movement):
+
+        if not self.is_flying:
+            print("Cannot fly when drone is not in flight mode", file=sys.stderr)
+            return True
+
         duration = 0
-        
         roll = int(roll)
         pitch = int(pitch)
         yaw = int(yaw)
         vertical_movement = int(vertical_movement)
 
-        if self.is_flying:
-            self.client.fly_direct(roll, pitch, yaw, vertical_movement, duration)
-            return True
-        else:
-            print("ERROR: Cannot fly when drone is not in flight mode", file=sys.stderr)
-            return False
+        self.client.fly_direct(roll, pitch, yaw, vertical_movement, duration)
+        return True
 
     def land(self, timeout=10):
+
+        if not self.is_flying:
+            print("Drone already landed", file=sys.stderr)
+            return True
+
         self.client.safe_land(timeout)
         self.is_flying = False
         return True
@@ -115,6 +120,10 @@ class Processor(object):
         return False
 
     def takeoff(self, timeout=10):
+        if self.is_flying:
+            print("Drone already flying", file=sys.stderr)
+            return True
+
         self.client.safe_takeoff(timeout)
         self.is_flying = True
         return True
