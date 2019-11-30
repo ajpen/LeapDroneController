@@ -71,7 +71,7 @@ void DroneControllerListener::onFrame(const Controller& controller) {
 
         double verticalMovement = 0;
 
-        // detect vertical change gesture
+        // detect vertical change since last frame
         auto previousFrame = controller.frame(1);
 
         auto prevHands = previousFrame.hands();
