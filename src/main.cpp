@@ -44,15 +44,15 @@ void DroneControllerListener::onFrame(const Controller& controller) {
 
     // Check for takeoff gesture
     if (isTakeoffCircleGesture(frame)){
-//        client->Takeoff();
-        std::cout << "Takeoff called" << std::endl;
+        client->Takeoff();
+//        std::cout << "Takeoff called" << std::endl;
         return;
     }
 
     // Check for landing gesture
     if (isLandingCircleGesture(frame)){
-//        client->Land();
-        std::cout << "Land called" << std::endl;
+        client->Land();
+//        std::cout << "Land called" << std::endl;
         return;
     }
 
@@ -77,14 +77,12 @@ void DroneControllerListener::onFrame(const Controller& controller) {
         auto prevHands = previousFrame.hands();
 
         if (prevHands.count() == 1) {
-            auto palmHeightDifference = hands[0].palmPosition().y - prevHands[0].palmPosition().y;
-//            verticalMovement = normalizeNumber(palmHeightDifference, 0, client->maxVerticalMovement);
-            verticalMovement = palmHeightDifference;
+            verticalMovement = hands[0].palmPosition().y - prevHands[0].palmPosition().y;
         }
 
-//        client->Fly(roll, pitch, yaw, verticalMovement);
-        std::cout << "Fly called with the values for roll: " << roll << " pitch: " << pitch << " yaw: " << yaw
-                << " and vertical_movement: " << verticalMovement << std::endl;
+        client->Fly(roll, pitch, yaw, verticalMovement);
+//        std::cout << "Fly called with the values for roll: " << roll << " pitch: " << pitch << " yaw: " << yaw
+//                << " and vertical_movement: " << verticalMovement << std::endl;
         return;
     }
 }
