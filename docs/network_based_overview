@@ -1,0 +1,19 @@
+1. Read configuration
+2. Initialize leap motion controller handlers/etc
+3. Instantiate Parrot client object.
+	a. Instantiate TCP object.
+	b. Establish a connection to the python client.
+	c. Initialize the python client using the configuration.
+4. Wait for takeoff gesture.
+	a. Send takeoff gesture to client.
+	b. Wait for ready signal, else report any errors.
+	c. On ready signal, switch to flight mode
+
+While In Flight:
+	send flight commands to client.
+	receive response.
+	if response is not good:
+		report it
+		send landing command and wait for response.
+		If timed out:
+			report it and exit

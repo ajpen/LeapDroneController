@@ -1,0 +1,24 @@
+C++ Leap Motion -> Parrot mambo fly interfacing
+
+The C++ application that communicates and interprets the gestures & hand positioning from the leap motion will run as the main process/program.
+
+Workflow:
+
+Start
+1. Read configurations from file
+2. Use the read configurations to initialize the Leap interface.
+3. Test that connection to the Leap was successful.
+4. Initialize the parrot interface with the configurations by creating the object, and attempting to start the subprocess
+5. Test that the subprocess was started.
+
+NOTE: the following steps behave as such due to the nature of the parrot interface.
+6. Listen for takeoff gesture.
+	a. If takeoff gesture is detected:
+		i.   Attempt to connect to the parrot. If cannot connect, print diagnostic message, else print successful connection
+		ii.  Attempt to takeoff. If cannot takeoff, print diagnostics. else print successful takeoff
+
+		IN FLIGHT
+
+		iii. While not idle (No valid movement detected by leap), send fly commands based on pitch, yaw and whatever else.
+		iv.  If idle, signal a safe land and report it to the user.
+		v.   If circle gesture detected, send barrel roll command in the direction of the circle.

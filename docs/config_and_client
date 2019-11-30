@@ -1,0 +1,8 @@
+Config:
+I can probably change the config file to accept arguments with specific names, instead of allowing
+any string pair to be accepted as configuration.
+
+Client:
+I can probably pass any arguments for initializing the client via the command line arguments for the process, after
+reading the arguments from the config file. With this, the application only needs to wait for some sort of signal to
+know that initialization was successful.
