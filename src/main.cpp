@@ -42,22 +42,15 @@ void DroneControllerListener::onFrame(const Controller& controller) {
 
     const Frame frame = controller.frame();
 
-//    std::cout << "Frame id: " << frame.id()
-//              << ", timestamp: " << frame.timestamp()
-//              << ", hands: " << frame.hands().count()
-//              << ", fingers: " << frame.fingers().count()
-//              << ", tools: " << frame.tools().count()
-//              << ", gestures: " << frame.gestures().count() << std::endl;
-
     // Check for takeoff gesture
-    if (isTakeoffGesture(frame) ){
+    if (isTakeoffCircleGesture(frame)){
 //        client->Takeoff();
         std::cout << "Takeoff called" << std::endl;
         return;
     }
 
     // Check for landing gesture
-    if (isLandingGesture(frame) ){
+    if (isLandingCircleGesture(frame)){
 //        client->Land();
         std::cout << "Land called" << std::endl;
         return;
