@@ -12,7 +12,11 @@ include_directories(LeapSDK/include)
 link_directories(LeapSDK/lib/x64/)
 
 
- add_executable(LeapDroneController src/main.cpp src/process/process.cpp src/process/process.h src/main.cpp)
+ add_executable(LeapDroneController
+         src/configuration/parser.cpp
+         src/droneclient/mamboclient.cpp
+         src/process/process.cpp
+         src/main.cpp)
  target_link_libraries(LeapDroneController Leap)
 
 

@@ -101,6 +101,11 @@ class MamboFlyClient : Process {
         void safePushToQueue(std::string& item);
 
     public:
+
+        // maxPitch and max Vertical Values
+        double maxPitchAngle = 0;
+        double maxVerticalMovement = 0;
+
         explicit MamboFlyClient(Config& configuration);
         void InitializeAndConnect();
 
@@ -108,7 +113,7 @@ class MamboFlyClient : Process {
         void SendCommand(std::string command);
         void Takeoff(int timeout = 5);
         void Land(int timeout = 5);
-        void Fly(int roll=0, int pitch=0, int yaw=0, int vertical_movement=0);
+        void Fly(double roll=0, double pitch=0, double yaw=0, double vertical_movement=0);
         void StopProcessing();
 };
 

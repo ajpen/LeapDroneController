@@ -16,7 +16,7 @@ MamboFlyClient::MamboFlyClient(Config& configuration) : Process(configuration){
             baseCommand += " --droneAddr="+ droneAddr->second;
         }
         else{
-            throw std::runtime_error("MamboFlyClient: Error, no 'command' or '--droneAddr' configuration set.");;
+            throw std::runtime_error("MamboFlyClient: Error, no 'command' or '--droneAddr' configuration set.");
         }
 
         // check for addition args
@@ -25,10 +25,12 @@ MamboFlyClient::MamboFlyClient(Config& configuration) : Process(configuration){
 
         if (maxPitch != configuration.end()){
             baseCommand += " --maxPitch=" + maxPitch->second;
+            maxPitchAngle = std::stod(maxPitch->second);
         }
 
         if (maxVertical != configuration.end()){
             baseCommand += " --maxVertical=" + maxVertical->second;
+            maxVerticalMovement = std::stod(maxVertical->second);
         }
         setArgs(baseCommand);
 }
@@ -193,7 +195,7 @@ void MamboFlyClient::Land(int timeout) {
     SendCommand(command + std::to_string(timeout));
 }
 
-void MamboFlyClient::Fly(int roll, int pitch, int yaw, int vertical_movement) {
+void MamboFlyClient::Fly(double roll, double pitch, double yaw, double vertical_movement) {
     std::string command = "fly ";
     command += std::to_string(roll) + " " + std::to_string(pitch) + " " +
             std::to_string(yaw) + " " + std::to_string(vertical_movement);

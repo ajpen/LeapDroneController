@@ -13,7 +13,8 @@ enum SwipeDirection {
     Left,
     Right,
     Up,
-    Down
+    Down,
+    Invalid
 };
 
 
@@ -37,6 +38,15 @@ double normalizeAngleInDegrees(double angle, double rangeStart, double rangeEnd)
 }
 
 
+/*
+ * Converts value from the leap motion vector (whose range is 25-600 mm) to a number
+ * within a specified range
+ * */
+double normalizeNumber(double value, double rangeStart, double rangeEnd){
+    double targetMapper = (rangeEnd - rangeStart) + rangeStart;
+    return ((value - 0) / (600 - 25)) * targetMapper;
+}
+
 
 /*Below are helper functions for simplifying leap motion gestures*/
 
@@ -50,8 +60,9 @@ bool isClockwise(Leap::CircleGesture circleGesture){
  * */
 SwipeDirection GetSwipeDirection(Leap::Frame frame){
     for (auto g: frame.gestures()){
-        if (g.type() == Leap::SwipeGesture){
-            direction = g.direction().toFloatArray(); // [x, y, z]
+        if (g.type() == Leap::Gesture::TYPE_SWIPE){
+            auto swipe = Leap::SwipeGesture(g);
+            auto direction = swipe.direction(); // [x, y, z]
 
             // compares the vertical direction of the swipe with the horizontal direction
             if (direction[1] > direction[0]){
@@ -72,18 +83,12 @@ SwipeDirection GetSwipeDirection(Leap::Frame frame){
             }
         }
     }
-    return nullptr;
+    return Invalid;
 }
 
 
-bool isTakeoffGesture(Leap::Frame frame){
-    int numOfHands = 0;
-
-    for (auto hand : frame.hands()){
-        if (hand.isValid()){
-            numOfHands++;
-        }
-    }
+bool isTakeoffGesture(const Leap::Frame& frame){
+    int numOfHands = frame.hands().count();
 
     // Takeoff only happens when 2 hands are in the frame
     if (numOfHands != 2){
@@ -93,14 +98,8 @@ bool isTakeoffGesture(Leap::Frame frame){
     return GetSwipeDirection(frame) == Up;
 }
 
-bool isLandingGesture(Leap::Frame frame){
-    int numOfHands = 0;
-
-    for (auto hand : frame.hands()){
-        if (hand.isValid()){
-            numOfHands++;
-        }
-    }
+bool isLandingGesture(const Leap::Frame& frame){
+    int numOfHands = frame.hands().count();
 
     // Landing only happens when 2 hands are in the frame
     if (numOfHands != 2){
@@ -111,26 +110,30 @@ bool isLandingGesture(Leap::Frame frame){
 }
 
 
+bool isTakeoffCircleGesture(const Leap::Frame& frame){
+    for (auto g: frame.gestures()){
+        if (g.type() == Leap::Gesture::TYPE_CIRCLE){
+            auto circleG = Leap::CircleGesture(g);
+            if (circleG.progress() == 1){
+                return isClockwise(circleG);
+            }
+        }
+    }
+    return false;
+}
 
 
+bool isLandingCircleGesture(const Leap::Frame& frame){
+    for (auto g: frame.gestures()){
+        if (g.type() == Leap::Gesture::TYPE_CIRCLE){
+            auto circleG = Leap::CircleGesture(g);
 
-//bool isTakeoffGesture(Leap::Frame frame){
-//    for (auto g: frame.gestures()){
-//        if (g.type() == Leap::CircleGesture){
-//            return isClockwise(g);
-//        }
-//    }
-//    return false;
-//}
-//
-//
-//bool isLandingGesture(Leap::Frame frame){
-//    for (auto g: frame.gestures()){
-//        if (g.type() == Leap::CircleGesture){
-//            return !isClockwise(g);
-//        }
-//    }
-//    return false;
-//}
+            if (circleG.progress() == 1){
+                return !isClockwise(circleG);
+            }
+        }
+    }
+    return false;
+}
 
 #endif //LEAPDRONECONTROLLER_LEAP_H
