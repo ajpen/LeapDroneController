@@ -31,7 +31,7 @@ def complain(message):
 
 
 def acknowledge_command():
-    print("ok")
+    print("ok", flush=True)
 
 
 """
