@@ -39,8 +39,8 @@ Installation
    
 5. Prepare build requirements.
     - Create a folder called build in the root directory of the repository with `mkdir build`.
-    - Generate build requirements with `cd build; cmake`.
-    - Build application binary using `make LeapDroneController`. If this command runs successfully, you'll see a binary named `LeapDroneController` in the current directory. Thats the application binary. 
+    - Generate build requirements with `cmake . -B build/`.
+    - Build application binary using `cmake --build ./build --target LeapDroneController -- -j 4`. If this command runs successfully, you'll see a binary named `LeapDroneController` in the `build` directory. Thats the application binary. 
     
     
 Running
