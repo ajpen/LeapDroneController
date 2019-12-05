@@ -83,23 +83,40 @@ class Processor(object):
 
     def connect(self):
 
+        # if already connected, ignore command
+        if self.connected:
+            return True
+
         if self.client.connect(3):
             self.connected = True
             return True
         
         return False
 
+    def disconnect(self):
+
+        # if already disconnected, ignore command
+        if not self.connected:
+            return True
+
+        if self.client.disconnect():
+            self.connected = False
+            return True
+
+        return False
+
     def fly(self, roll, pitch, yaw, vertical_movement):
 
         if not self.is_flying:
             print("Cannot fly when drone is not in flight mode", file=sys.stderr)
+            self.client.smart_sleep(0.1)
             return True
 
-        duration = 0
-        roll = int(roll)
-        pitch = int(pitch)
-        yaw = int(yaw)
-        vertical_movement = int(vertical_movement)
+        duration = None
+        roll = float(roll)
+        pitch = float(pitch)
+        yaw = float(yaw)
+        vertical_movement = float(vertical_movement)
 
         self.client.fly_direct(roll, pitch, yaw, vertical_movement, duration)
         return True
@@ -108,9 +125,10 @@ class Processor(object):
 
         if not self.is_flying:
             print("Drone already landed", file=sys.stderr)
+            self.client.smart_sleep(0.1)
             return True
 
-        self.client.safe_land(timeout)
+        self.client.safe_land(int(timeout))
         self.is_flying = False
         return True
 
@@ -122,9 +140,10 @@ class Processor(object):
     def takeoff(self, timeout=10):
         if self.is_flying:
             print("Drone already flying", file=sys.stderr)
+            self.client.smart_sleep(0.1)
             return True
 
-        self.client.safe_takeoff(timeout)
+        self.client.safe_takeoff(int(timeout))
         self.is_flying = True
         return True
 
@@ -133,14 +152,20 @@ class Processor(object):
         while True:
             try:
                 message = self.queue.get_nowait()
+                print("received: " + message, file=sys.stderr)
             except queue.Empty:
                 if self.connected:
-                    self.client.smart_sleep(1)
+                    print("sleeping", file=sys.stderr)
+                    self.client.ask_for_state_update()
+                    self.client.smart_sleep(0.1)
                     seconds_idle += 1
 
-                # stop flying if idle for too long
-                if seconds_idle >= 10:
-                    self.client.safe_land(10)
+                    # stop flying and disconnect if idle for too long
+                    if seconds_idle >= 30:
+                        print("client timed out. Landing and exiting", file=sys.stderr)
+                        self.client.safe_land(10)
+                        self.client.disconnect()
+                        print("client timed out. Landing and exiting")
 
                 continue
 

@@ -1,10 +1,6 @@
-/******************************************************************************\
-* Copyright (C) 2012-2014 Leap Motion, Inc. All rights reserved.               *
-* Leap Motion proprietary and confidential. Not for distribution.              *
-* Use subject to the terms of the Leap Motion SDK Agreement available at       *
-* https://developer.leapmotion.com/sdk_agreement, or another agreement         *
-* between Leap Motion and you, your company or other organization.             *
-\******************************************************************************/
+//
+// Created by anfernee on 11/29/19.
+//
 
 #include <iostream>
 
@@ -16,9 +12,6 @@
 using namespace Leap;
 
 
-// Change this to be a Mambo fly drone specific listener.
-// Store the client apart of the listener and then access that
-// through the class members.
 class DroneControllerListener : public Listener {
 
 private:
@@ -36,6 +29,9 @@ void DroneControllerListener::onConnect(const Controller& controller) {
     // Enable the swipe gesture for takeoff/landing
     controller.enableGesture(Gesture::TYPE_SWIPE);
     controller.enableGesture(Gesture::TYPE_CIRCLE);
+
+//    controller.config().setBool("robust_mode_enabled", false);
+//    controller.config().save();
 }
 
 void DroneControllerListener::onFrame(const Controller& controller) {
@@ -45,29 +41,38 @@ void DroneControllerListener::onFrame(const Controller& controller) {
     // Check for takeoff gesture
     if (isTakeoffCircleGesture(frame)){
         client->Takeoff();
-//        std::cout << "Takeoff called" << std::endl;
+        std::cout << "PARENT: Takeoff called" << std::endl;
         return;
     }
 
     // Check for landing gesture
     if (isLandingCircleGesture(frame)){
         client->Land();
-//        std::cout << "Land called" << std::endl;
+        std::cout << "PARENT: Land called" << std::endl;
+        return;
+    }
+
+    // Frame skipping
+    if (frame.id() % 10 != 0){
         return;
     }
 
     auto hands = frame.hands();
 
     // Only detect instructions when the accuracy is at least 80% and all 5 fingers are extended
-    if (hands.count() == 1 && hands[0].confidence() >= 0.9 && hands[0].fingers().extended().count() == 5){
+    if (hands.count() == 1 && hands[0].confidence() >= 0.96 && hands[0].fingers().extended().count() == 5){
 
         // Detect palm orientation and send it to the drone
-        auto pitchDegrees = radiansToDegrees(hands[0].direction().pitch());
+        auto pitchDegrees = radiansToDegrees(hands[0].direction().pitch()) * -1;
         auto pitch = normalizeAngleInDegrees(
-                pitchDegrees, 0, client->maxPitchAngle) * -1;
+                pitchDegrees, 0, client->maxPitchAngle);
 
-        auto yaw = radiansToDegrees(hands[0].direction().yaw());
-        auto roll = radiansToDegrees(hands[0].palmNormal().roll());
+        auto yaw = normalizeAngleInDegrees(
+                radiansToDegrees(hands[0].direction().yaw()), 0, client->maxPitchAngle);
+
+
+        auto roll = normalizeAngleInDegrees(
+                radiansToDegrees(hands[0].palmNormal().roll()), 0, client->maxPitchAngle);
 
         double verticalMovement = 0;
 
@@ -81,8 +86,8 @@ void DroneControllerListener::onFrame(const Controller& controller) {
         }
 
         client->Fly(roll, pitch, yaw, verticalMovement);
-//        std::cout << "Fly called with the values for roll: " << roll << " pitch: " << pitch << " yaw: " << yaw
-//                << " and vertical_movement: " << verticalMovement << std::endl;
+        std::cout << "PARENT: Fly called with the values for roll: " << roll << " pitch: " << pitch << " yaw: " << yaw
+                << " and vertical_movement: " << verticalMovement << std::endl;
         return;
     }
 }
@@ -98,8 +103,9 @@ int main(int argc, char** argv) {
     auto config = parser.Parse(configPath);
 
     MamboFlyClient client(config);
-    DroneControllerListener listener(&client);
+    client.InitializeAndConnect();
 
+    DroneControllerListener listener(&client);
 
     controller.addListener(listener);
 
