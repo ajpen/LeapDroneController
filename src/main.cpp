@@ -34,7 +34,6 @@ public:
 
 void DroneControllerListener::onConnect(const Controller& controller) {
     // Enable the swipe gesture for takeoff/landing
-    controller.enableGesture(Gesture::TYPE_SWIPE);
     controller.enableGesture(Gesture::TYPE_CIRCLE);
 }
 
@@ -109,6 +108,8 @@ int main(int argc, char** argv) {
 
     // Remove the sample listener when done
     controller.removeListener(listener);
+
+    client.StopProcessing();
 
     return 0;
 }

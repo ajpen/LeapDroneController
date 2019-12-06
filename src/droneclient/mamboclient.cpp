@@ -86,7 +86,7 @@ void MamboFlyClient::startProcessingCommands() {
 
         // Only read when there are commands available.
         if (!areTherePendingCommands()){
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         } else {
             command = safePopFromQueue();
