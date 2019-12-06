@@ -114,7 +114,7 @@ bool isTakeoffCircleGesture(const Leap::Frame& frame){
     for (auto g: frame.gestures()){
         if (g.type() == Leap::Gesture::TYPE_CIRCLE){
             auto circleG = Leap::CircleGesture(g);
-            if (circleG.progress() == 1){
+            if (circleG.progress() > 1){
                 return isClockwise(circleG);
             }
         }
@@ -128,7 +128,7 @@ bool isLandingCircleGesture(const Leap::Frame& frame){
         if (g.type() == Leap::Gesture::TYPE_CIRCLE){
             auto circleG = Leap::CircleGesture(g);
 
-            if (circleG.progress() == 1){
+            if (circleG.progress() > 1){
                 return !isClockwise(circleG);
             }
         }
