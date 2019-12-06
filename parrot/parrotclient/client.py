@@ -88,9 +88,11 @@ class Processor(object):
             return True
 
         if self.client.connect(3):
+            self.client.ask_for_state_update()
             self.connected = True
+
             return True
-        
+
         return False
 
     def disconnect(self):
@@ -109,7 +111,6 @@ class Processor(object):
 
         if not self.is_flying:
             print("Cannot fly when drone is not in flight mode", file=sys.stderr)
-            self.client.smart_sleep(0.1)
             return True
 
         duration = None
@@ -125,7 +126,6 @@ class Processor(object):
 
         if not self.is_flying:
             print("Drone already landed", file=sys.stderr)
-            self.client.smart_sleep(0.1)
             return True
 
         self.client.safe_land(int(timeout))
@@ -138,9 +138,9 @@ class Processor(object):
         return False
 
     def takeoff(self, timeout=10):
+
         if self.is_flying:
             print("Drone already flying", file=sys.stderr)
-            self.client.smart_sleep(0.1)
             return True
 
         self.client.safe_takeoff(int(timeout))
@@ -155,13 +155,13 @@ class Processor(object):
                 print("received: " + message, file=sys.stderr)
             except queue.Empty:
                 if self.connected:
-                    print("sleeping", file=sys.stderr)
-                    self.client.ask_for_state_update()
-                    self.client.smart_sleep(0.1)
+                    if seconds_idle > 1:
+                        print("sleeping", file=sys.stderr)
+                        self.client.smart_sleep(0.00001)
                     seconds_idle += 1
 
                     # stop flying and disconnect if idle for too long
-                    if seconds_idle >= 30:
+                    if seconds_idle >= 300:
                         print("client timed out. Landing and exiting", file=sys.stderr)
                         self.client.safe_land(10)
                         self.client.disconnect()
