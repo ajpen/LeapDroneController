@@ -28,9 +28,6 @@ public:
 void DroneControllerListener::onConnect(const Controller& controller) {
     // Enable the swipe gesture for takeoff/landing
     controller.enableGesture(Gesture::TYPE_CIRCLE);
-
-//    controller.config().setBool("robust_mode_enabled", false);
-//    controller.config().save();
 }
 
 void DroneControllerListener::onFrame(const Controller& controller) {
@@ -40,19 +37,17 @@ void DroneControllerListener::onFrame(const Controller& controller) {
     // Check for takeoff gesture
     if (isTakeoffCircleGesture(frame)){
         client->Takeoff();
-        std::cout << "PARENT: Takeoff called" << std::endl;
         return;
     }
 
     // Check for landing gesture
     if (isLandingCircleGesture(frame)){
         client->Land();
-        std::cout << "PARENT: Land called" << std::endl;
         return;
     }
 
     // Frame skipping
-    if (frame.id() % 10 != 0){
+    if (frame.id() % 5 != 0){
         return;
     }
 
@@ -85,9 +80,6 @@ void DroneControllerListener::onFrame(const Controller& controller) {
         }
 
         client->Fly(roll, pitch, yaw, verticalMovement);
-        std::cout << "PARENT: Fly called with the values for roll: " << roll << " pitch: " << pitch << " yaw: " << yaw
-                << " and vertical_movement: " << verticalMovement << std::endl;
-        return;
     }
 }
 
