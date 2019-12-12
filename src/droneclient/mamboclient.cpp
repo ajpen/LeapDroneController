@@ -65,6 +65,7 @@ void MamboFlyClient::InitializeAndConnect(){
     if (!connect()){
         throw std::runtime_error("MamboFlyClient: Child unable to connect to drone.");
     }
+    std::cout << "Drone connected!\nWaiting for gestures..." << std::endl;
 
     // Start the processing thread which should run concurrently
     std::thread processingThread(&MamboFlyClient::startProcessingCommands, this);
@@ -85,8 +86,7 @@ void MamboFlyClient::startProcessingCommands() {
 
         // Only read when there are commands available.
         if (!areTherePendingCommands()){
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
+            continue;
         } else {
             command = safePopFromQueue();
             if (command == stopSignal) {

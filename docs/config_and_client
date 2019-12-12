@@ -6,3 +6,11 @@ Client:
 I can probably pass any arguments for initializing the client via the command line arguments for the process, after
 reading the arguments from the config file. With this, the application only needs to wait for some sort of signal to
 know that initialization was successful.
+
+
+I Should have configurations in the config file for setting the following:
+
+1. Frame skipping for the Leap Motion.
+2. Idle smart sleep time for the child.
+3. Normalizing values for yaw, pitch, roll (and maybe vertical)
+4. Minimum frame hand confidence (how good of a guess it was on the hand's orientation)
