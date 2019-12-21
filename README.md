@@ -1,7 +1,8 @@
 # LeapDroneController
 
-A c++ application that uses the Leap Motion to control the Parrot Mambo Fly Drone with hand gestures.
+A c++ application that uses the Leap Motion to control the Parrot Mambo Fly Drone with hand gestures. 
 
+LeapDroneController was the final project of my Advanced Programming Techniques Honors class. It was  a C++ class, which is why this project written in mostly C++.
 
 Requirements
 ============
@@ -12,10 +13,10 @@ Requirements
 **Leap Motion**: Version 2.3 of the Leap Motion SDK is required. You can get it [here](https://developer.leapmotion.com/sdk/v2). 
 
 
-**Parrot Mambo Drone**: Pyparrot is required. Pyparrot needs a Python 3 interpreter and its own requirements. You can find its installation instructions [here](https://pyparrot.readthedocs.io/en/latest/installation.html).
+**Parrot Mambo Drone**: A patched version of Pyparrot is required. Pyparrot needs a Python 3.7 interpreter and its own software requirements. You can find the software requirements [here](https://pyparrot.readthedocs.io/en/latest/installation.html).
 
 
-**Compilation Requirements**: G++ v3.9.1 or higher. cmake v3.15 or higher.
+**Compilation Requirements**: Tested with G++ v3.9.1 or higher and cmake v3.5 or higher.  
 
 
 Installation
@@ -23,30 +24,35 @@ Installation
 
 1. Download/Clone the repository. 
 
-2. Download and extract the Leap motion SDK for linux. 
-    - If running a Debian based distribution, install the .deb file with `dpkg -i /path/to/Leap-2.3.x+xxxx-x86/x64.deb
+2. Download and extract the Leap motion SDK for linux.
+    - If running a Debian based distribution, install the .deb file with `dpkg -i /path/to/Leap-2.3.x+xxxx-x86/x64.deb`. If running another distribution, you may find instructions on how to convert `.deb` to the package standard required for your distribution with a search engine (e.g. Google).
 
 3. Copy the LeapSDK folder to the root directory of the repository. 
 
-4. Assuming you have Python 3 installed, install pyparrot.
-   - If you don't have a Python 3, you can install it by following [this tutorial](https://realpython.com/installing-python/#linux)
+4. Assuming you have Python 3.7 installed, install pyparrot's dependencies.
+   - If you don't have a Python 3, you can install it by following [this tutorial](https://linuxize.com/post/how-to-install-python-3-7-on-ubuntu-18-04/)
    
    - Optionally, you can install virtualenv to keep your system python packages clean. To install virtualenv run `python3 -m pip install virtualenv` from your commandline. To create the virtual environment, run `python3 -m virtualenv myenvironmentname` from your commandline. You should see `(myenvironmentname)` prefixing your command line prompt.
    
-   - Install pyparrot's software requirements by following [these instructions](https://pyparrot.readthedocs.io/en/latest/installation.html#software-requirements). Note that these instructions assume that you're running Ubuntu. If you have a different distribution, you may need to search for those packages.
+   - Install pyparrot's software requirements with `sudo apt-get install bluetooth bluez python-bluez libglib2.0-dev`. Note that these instructions assume that you're running Ubuntu. If you have a different distribution, you may need to search for those packages.
    
-   - Install pyparrot with `python3 -m pip install pyparrot`. If you're using the virtualenv, use `python -m pip install pyparrot`.
-   
-5. Prepare build requirements.
+   - Install pyparrot's python package requirements with `python3 -m pip install untangle zeroconf bluepy`. If you're using the virtualenv, use `python -m pip install untangle zeroconf bluepy`.
+  
+5. Install the custom pyparrot.
+    - Clone/download the custom pyparrot repository: https://github.com/ajpen/pyparrot
+    - From inside the directory of the downloaded repository, run `python3 -m pip install .` (or `python -m pip install .` from within the virtualenv)
+    
+
+6. Prepare build requirements.
     - Create a folder called build in the root directory of the repository with `mkdir build`.
-    - Generate build requirements with `cmake . -B build/`.
-    - Build application binary using `cmake --build ./build --target LeapDroneController -- -j 4`. If this command runs successfully, you'll see a binary named `LeapDroneController` in the `build` directory. Thats the application binary. 
+    - Generate build requirements with `cd build; cmake ../`.
+    - Build application binary using `make LeapDroneController`. If this command runs successfully, you'll see a binary named `LeapDroneController` in the `build` directory. Thats the application binary. 
     
     
 Running
 =========
 
-**Note** Before running, you need to configure the application. Create a file named `config.txt` with your preferred editor. Here's a starting template of the configuration:
+**Note** Before running, you need to configure the application. Create a file named `config.txt` in the same directory as the `LeapDroneController` binary, and open the file using your preferred editor. Here's a starting template of the configuration:
 
 ```
 "command":"/path/to/python3 /path/to/repository/parrot/parrotclient/client.py"
@@ -95,7 +101,6 @@ Tilting it right makes the drone swing right.
 Twisting your hand left or right (using your wrist as if you're wiping an imaginary table) rotates the drone in the direction that you're twisting.
 
 
-Demo
+[Demo](https://youtu.be/HgkMTQy89RE)
 ==========
 
-Coming soon!
