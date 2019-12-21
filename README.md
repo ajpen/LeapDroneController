@@ -2,7 +2,7 @@
 
 A c++ application that uses the Leap Motion to control the Parrot Mambo Fly Drone with hand gestures. 
 
-LeapDroneController was the final project of my Advanced Programming Techniques Honors class. It was  a C++ class, which is why this project written in mostly C++.
+LeapDroneController was the final project of my Advanced Programming Techniques Honors class. It was  a C++ class, which is why this project was written in mostly C++.
 
 Requirements
 ============
