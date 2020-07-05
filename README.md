@@ -100,7 +100,3 @@ Tilting it right makes the drone swing right.
 
 Twisting your hand left or right (using your wrist as if you're wiping an imaginary table) rotates the drone in the direction that you're twisting.
 
-
-[Demo](https://youtu.be/HgkMTQy89RE)
-==========
-
