@@ -31,7 +31,7 @@ Installation
 
 4. Assuming you have Python 3.7 installed, install pyparrot's dependencies.  
 
-(Note: For the python software, be aware that there's a `pythonrequirements.txt` file in the repository. You can install the dependencies with `pip install -r pythonrequirements.txt`)
+(**Note:** For the python software, be aware that there's a `pythonrequirements.txt` file in the repository. You can install the dependencies with `pip install -r pythonrequirements.txt`)
    - If you don't have a Python 3, you can install it by following [this tutorial](https://linuxize.com/post/how-to-install-python-3-7-on-ubuntu-18-04/)
    
    - Optionally, you can install virtualenv to keep your system python packages clean. To install virtualenv run `python3 -m pip install virtualenv` from your commandline. To create the virtual environment, run `python3 -m virtualenv myenvironmentname` from your commandline. You should see `(myenvironmentname)` prefixing your command line prompt.
