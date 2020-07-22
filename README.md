@@ -101,4 +101,6 @@ Tilting it left makes the drone swing left.
 Tilting it right makes the drone swing right. 
 
 Twisting your hand left or right (using your wrist as if you're wiping an imaginary table) rotates the drone in the direction that you're twisting.
-
+  
+  
+![Flight Demo](https://github.com/ajpen/LeapDroneController/raw/master/leapDroneControllerDemo.gif)
